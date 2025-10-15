@@ -19,11 +19,9 @@ jobs:
       fail-fast: false
       matrix:
         # **CORRECTED OPENWRT VERSIONS**
-        # These are the actual branch names used by the OpenWrt project on GitHub.
         openwrt_version: [ 'openwrt-24.10', 'master', 'openwrt-23.05', 'openwrt-22.03' ]
 
         # A comprehensive list of 17 major OpenWrt targets.
-        # Defined on a single line to avoid multi-line YAML parsing issues with list syntax.
         openwrt_target: [ 'ath79/generic', 'bcm27xx/bcm2711', 'ipq40xx/generic', 'ipq806x/generic', 'ipq807x/generic', 'lantiq/xrx200', 'mediatek/filogic', 'mvebu/cortexa9', 'ramips/mt7621', 'rockchip/armv8', 'sunxi/cortexa7', 'x86/64', 'qualcommax/ipq5018', 'qualcommax/ipq6018', 'qualcommax/ipq8074', 'realtek/generic', 'mediatek/mt7622' ]
         
     steps:
@@ -43,9 +41,9 @@ jobs:
           
           # Configure the target architecture
           cd openwrt
-          # Use the fully qualified path for the target configuration
-          TARGET_CONFIG="CONFIG_TARGET_${{ matrix.openwrt_target }}=y"
-          echo "${TARGET_CONFIG//\//_}" > .config
+          # Use the fully qualified path for the target configuration and replace '/' with '_'
+          TARGET_CONFIG="CONFIG_TARGET_${{ matrix.openwrt_target }}"
+          echo "${TARGET_CONFIG//\//_}=y" > .config
           
           # Use a simple default config to ensure only packages are built
           cat >> .config << EOF
@@ -62,7 +60,7 @@ jobs:
           CONFIG_SIGNED_PACKAGES=y
           EOF
 
-      - name: Add custom feeds (FIXED: Using src-git for all custom repos)
+      - name: Add custom feeds
         run: |
           # All custom feeds are defined using the standard 'src-git' method.
           
