@@ -58,7 +58,7 @@ jobs:
         run: |
           # Install necessary tools for Python, Libtool (crucial for host tools), and general build process.
           sudo apt-get update
-          # CRITICAL ADDITION: libtool for robust host tool compilation
+          # CRITICAL ADDITION: libtool for robust host tool compilation, and python3-setuptools for package dependencies
           sudo apt-get install -y subversion libncurses5-dev gawk zlib1g-dev python3-dev python3-setuptools unzip wget libtool
           
           # Configure the target architecture
@@ -80,21 +80,43 @@ jobs:
           CONFIG_SIGNED_PACKAGES=y
           EOF
 
-      - name: Add custom feeds
+      - name: Add custom feeds (FIXED with src-git-svn for LuCI themes/apps)
         run: |
-          # Append your custom feeds to the default feeds configuration file
+          # The 'src-git-svn' method is used for feeds that contain packages directly in their root,
+          # allowing the OpenWrt scripts to recognize them correctly.
+          
+          # 1. xiaorouji/openwrt-passwall-packages (Package Feed - use src-git)
           echo 'src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall-packages' >> openwrt/feeds.conf.default
-          echo 'src-git passwall_peditx https://github.com/peditx/openwrt-passwall' >> openwrt/feeds.conf.default
-          echo 'src-git passwall2_peditx https://github.com/peditx/openwrt-passwall2' >> openwrt/feeds.conf.default
-          echo 'src-git themeswitch https://github.com/peditx/luci-app-themeswitch' >> openwrt/feeds.conf.default
-          echo 'src-git theme_peditx https://github.com/peditx/luci-theme-peditx' >> openwrt/feeds.conf.default
-          echo 'src-git theme_carbonpx https://github.com/peditx/luci-theme-carbonpx' >> openwrt/feeds.conf.default
+          
+          # 2. peditx/openwrt-passwall (LuCI App - use src-git-svn)
+          echo 'src-git-svn passwall_peditx https://github.com/peditx/openwrt-passwall' >> openwrt/feeds.conf.default
+          
+          # 3. peditx/openwrt-passwall2 (LuCI App - use src-git-svn)
+          echo 'src-git-svn passwall2_peditx https://github.com/peditx/openwrt-passwall2' >> openwrt/feeds.conf.default
+          
+          # 4. peditx/luci-app-themeswitch (LuCI App - use src-git-svn)
+          echo 'src-git-svn themeswitch https://github.com/peditx/luci-app-themeswitch' >> openwrt/feeds.conf.default
+          
+          # 5. peditx/luci-theme-peditx (LuCI Theme - use src-git-svn)
+          echo 'src-git-svn theme_peditx https://github.com/peditx/luci-theme-peditx' >> openwrt/feeds.conf.default
+          
+          # 6. peditx/luci-theme-carbonpx (LuCI Theme - use src-git-svn)
+          echo 'src-git-svn theme_carbonpx https://github.com/peditx/luci-theme-carbonpx' >> openwrt/feeds.conf.default
           
           # Update and install all feeds
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
+      - name: Cache OpenWrt Downloads
+        uses: actions/cache@v4
+        with:
+          path: openwrt/dl
+          # Cache key based on OpenWrt version and the hash of the custom feeds file
+          key: ${{ runner.os }}-${{ matrix.openwrt_version }}-dl-${{ hashFiles('openwrt/feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.openwrt_version }}-dl-
+
       - name: Decode usign private key
         # Decodes the Base64 private key from GitHub Secrets and prepares it for the build
         # This is essential for CONFIG_SIGNED_PACKAGES=y
@@ -108,16 +130,23 @@ jobs:
           cd openwrt
           make defconfig
           make download -j$(nproc)
+          
+      - name: Cache Toolchain
+        uses: actions/cache@v4
+        with:
+          path: openwrt/staging_dir/target-*
+          # Cache key based on OS, OpenWrt version, and toolchain version
+          key: ${{ runner.os }}-${{ matrix.openwrt_version }}-toolchain-${{ hashFiles('openwrt/include/version.mk') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.openwrt_version }}-toolchain-
 
-      - name: Build host tools (usign)
-        # CRITICAL FIX: We explicitly run prepare, compile, and install for robustness. 
-        # This ensures usign is fully built and available for signing.
+      - name: Build Minimal Toolchain for usign
+        # CRITICAL FIX: Build a minimal toolchain/SDK to guarantee that usign is built and installed
+        # in staging_dir/host/bin before package index generation.
+        # This step is skipped if the toolchain cache is hit.
         run: |
           cd openwrt
-          echo "--- Explicitly preparing, compiling, and installing host tools (usign) ---"
-          make tools/prepare V=s
-          make tools/compile V=s
-          make tools/install V=s
+          make target/toolchain/compile V=s
           
       - name: Build external packages
         # Build all packages from custom feeds that are not already built-in.
