@@ -20,31 +20,11 @@ jobs:
       matrix:
         # **CORRECTED OPENWRT VERSIONS**
         # These are the actual branch names used by the OpenWrt project on GitHub.
-        openwrt_version:
-          - 'openwrt-24.10'    # Latest Development/Release Candidate (as per user request)
-          - 'master'           # General Development branch (Bleeding Edge)
-          - 'openwrt-23.05'    # Latest Stable Branch
-          - 'openwrt-22.03'    # Previous Stable Branch
+        openwrt_version: [ 'openwrt-24.10', 'master', 'openwrt-23.05', 'openwrt-22.03' ]
 
         # A comprehensive list of 17 major OpenWrt targets.
-        openwrt_target:
-          - ath79/generic
-          - bcm27xx/bcm2711
-          - ipq40xx/generic
-          - ipq806x/generic
-          - ipq807x/generic
-          - lantiq/xrx200
-          - mediatek/filogic
-          - mvebu/cortexa9
-          - ramips/mt7621
-          - rockchip/armv8
-          - sunxi/cortexa7
-          - x86/64
-          - qualcommax/ipq5018
-          - qualcommax/ipq6018
-          - qualcommax/ipq8074
-          - realtek/generic
-          - mediatek/mt7622
+        # Defined on a single line to avoid multi-line YAML parsing issues with list syntax.
+        openwrt_target: [ 'ath79/generic', 'bcm27xx/bcm2711', 'ipq40xx/generic', 'ipq806x/generic', 'ipq807x/generic', 'lantiq/xrx200', 'mediatek/filogic', 'mvebu/cortexa9', 'ramips/mt7621', 'rockchip/armv8', 'sunxi/cortexa7', 'x86/64', 'qualcommax/ipq5018', 'qualcommax/ipq6018', 'qualcommax/ipq8074', 'realtek/generic', 'mediatek/mt7622' ]
         
     steps:
       - name: Checkout main branch
@@ -63,7 +43,9 @@ jobs:
           
           # Configure the target architecture
           cd openwrt
-          echo "CONFIG_TARGET_${{ matrix.openwrt_target }}=y" > .config
+          # Use the fully qualified path for the target configuration
+          TARGET_CONFIG="CONFIG_TARGET_${{ matrix.openwrt_target }}=y"
+          echo "${TARGET_CONFIG//\//_}" > .config
           
           # Use a simple default config to ensure only packages are built
           cat >> .config << EOF
@@ -80,27 +62,26 @@ jobs:
           CONFIG_SIGNED_PACKAGES=y
           EOF
 
-      - name: Add custom feeds (FIXED: Reverting to src-git for all)
+      - name: Add custom feeds (FIXED: Using src-git for all custom repos)
         run: |
-          # All custom feeds are now defined using the standard 'src-git' method.
-          # The OpenWrt scripts can correctly locate the Makefiles inside these repositories.
+          # All custom feeds are defined using the standard 'src-git' method.
           
           # 1. xiaorouji/openwrt-passwall-packages (Package Feed)
           echo 'src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall-packages' >> openwrt/feeds.conf.default
           
-          # 2. peditx/openwrt-passwall (LuCI App - FIXED)
+          # 2. peditx/openwrt-passwall (LuCI App)
           echo 'src-git passwall_peditx https://github.com/peditx/openwrt-passwall' >> openwrt/feeds.conf.default
           
-          # 3. peditx/openwrt-passwall2 (LuCI App - FIXED)
+          # 3. peditx/openwrt-passwall2 (LuCI App)
           echo 'src-git passwall2_peditx https://github.com/peditx/openwrt-passwall2' >> openwrt/feeds.conf.default
           
-          # 4. peditx/luci-app-themeswitch (LuCI App - FIXED)
+          # 4. peditx/luci-app-themeswitch (LuCI App)
           echo 'src-git themeswitch https://github.com/peditx/luci-app-themeswitch' >> openwrt/feeds.conf.default
           
-          # 5. peditx/luci-theme-peditx (LuCI Theme - FIXED)
+          # 5. peditx/luci-theme-peditx (LuCI Theme)
           echo 'src-git theme_peditx https://github.com/peditx/luci-theme-peditx' >> openwrt/feeds.conf.default
           
-          # 6. peditx/luci-theme-carbonpx (LuCI Theme - FIXED)
+          # 6. peditx/luci-theme-carbonpx (LuCI Theme)
           echo 'src-git theme_carbonpx https://github.com/peditx/luci-theme-carbonpx' >> openwrt/feeds.conf.default
           
           # Update and install all feeds
