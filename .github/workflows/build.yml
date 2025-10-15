@@ -1,0 +1,177 @@
+# =======================================================================================
+# Title: Complete and Advanced Workflow for Automated OpenWrt Package Building
+# Description: This is a production-ready script. It automatically builds packages for
+# multiple OpenWrt versions across 17+ architectures, signs them with a private key,
+# includes custom feeds, caches downloads for faster subsequent runs, and deploys
+# them in a structured manner for use with Cloudflare Pages.
+# =======================================================================================
+
+name: Build and Deploy OpenWrt Packages
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 0' # Runs weekly at 2:00 AM UTC on Sunday
+
+jobs:
+  # --- JOB 1: BUILD PACKAGES ---
+  # This job runs in parallel for each specified OpenWrt version to maximize speed.
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # <<< EDIT THIS SECTION >>>
+        # List of OpenWrt versions to build packages for.
+        # You can add or remove versions as needed.
+        openwrt_version: ['v23.05.3', 'v22.03.5']
+
+    env:
+      # A comprehensive list of 17 major OpenWrt targets.
+      # No changes are needed here unless you have a very specific architecture.
+      OPENWRT_TARGETS: >-
+        ath79/generic
+        bcm27xx/bcm2711
+        ipq40xx/generic
+        ipq806x/generic
+        ipq807x/generic
+        lantiq/xrx200
+        mediatek/filogic
+        mvebu/cortexa9
+        ramips/mt7621
+        rockchip/armv8
+        sunxi/cortexa7
+        x86/64
+        qualcommax/ipq5018
+        qualcommax/ipq6018
+        qualcommax/ipq8074
+        realtek/generic
+        mediatek/mt7622
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+
+      - name: Setup build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang flex bison g++ gawk \
+          gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev \
+          python3-distutils rsync unzip zlib1g-dev file wget
+
+      - name: Cache downloads
+        # Cache the 'dl' directory to speed up subsequent builds
+        uses: actions/cache@v4
+        with:
+          path: openwrt/dl
+          key: ${{ runner.os }}-${{ matrix.openwrt_version }}-dl-${{ hashFiles('**/feeds.conf.default') }}
+
+      - name: Clone OpenWrt source code
+        run: git clone --depth 1 --branch ${{ matrix.openwrt_version }} https://github.com/openwrt/openwrt.git openwrt
+
+      - name: Add custom feeds
+        run: |
+          # Append your custom feeds to the default feeds configuration file
+          echo 'src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall-packages' >> openwrt/feeds.conf.default
+          echo 'src-git passwall_peditx https://github.com/peditx/openwrt-passwall' >> openwrt/feeds.conf.default
+          echo 'src-git passwall2_peditx https://github.com/peditx/openwrt-passwall2' >> openwrt/feeds.conf.default
+          echo 'src-git themeswitch https://github.com/peditx/luci-app-themeswitch' >> openwrt/feeds.conf.default
+          echo 'src-git theme_peditx https://github.com/peditx/luci-theme-peditx' >> openwrt/feeds.conf.default
+          echo 'src-git theme_carbonpx https://github.com/peditx/luci-theme-carbonpx' >> openwrt/feeds.conf.default
+
+          # Display the final feeds configuration for debugging purposes
+          echo "--- Final feeds.conf.default content ---"
+          cat openwrt/feeds.conf.default
+          echo "----------------------------------------"
+
+          # Update and install all feeds
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Decode usign private key
+        # Decodes the Base64 private key from GitHub Secrets and prepares it for the build
+        run: |
+          echo "${{ secrets.USIGN_PRIVATE_KEY }}" | base64 -d > openwrt/signing_key.pem
+          chmod 600 openwrt/signing_key.pem
+        # IMPORTANT: Add your secret in GitHub > Settings > Secrets and variables > Actions
+        # with the name USIGN_PRIVATE_KEY
+
+      - name: Build packages for each target
+        run: |
+          cd openwrt
+          for target in ${{ env.OPENWRT_TARGETS }}; do
+            echo "================================================="
+            echo "Building for target: ${target} on OpenWrt ${{ matrix.openwrt_version }}"
+            echo "================================================="
+            # Create .config file for the current target
+            echo "CONFIG_TARGET_${target//\//_}=y" > .config
+            echo "CONFIG_ALL_KMODS=y" >> .config
+            echo "CONFIG_ALL_NONSHARED=y" >> .config
+            # Add package signing configuration
+            echo "CONFIG_SIGNED_PACKAGES=y" >> .config
+            echo 'CONFIG_PACKAGE_SIGNING_KEY="${{ github.workspace }}/openwrt/signing_key.pem"' >> .config
+            make defconfig
+
+            # Start package build process using all available processor cores
+            make package/index V=s -j$(nproc) || make package/index V=s -j1
+          done
+
+      - name: Organize packages for deployment
+        run: |
+          # Move the built packages to a version-named directory
+          mv ./openwrt/bin/packages ${{ matrix.openwrt_version }}
+          # Copy the public signing key for users to download.
+          # NOTE: 'key-build.pub' is generated automatically by the OpenWrt build system
+          # during the signing process from your private key.
+          cp ./openwrt/key-build.pub ${{ matrix.openwrt_version }}/
+
+      - name: Upload artifact for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.openwrt_version }}
+          path: ${{ matrix.openwrt_version }}
+
+  # --- JOB 2: DEPLOY PACKAGES ---
+  # This job runs only after all build jobs have succeeded.
+  # It collects all artifacts and publishes them to the 'repo' branch.
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all built packages
+        uses: actions/download-artifact@v4
+        with:
+          path: ./all-packages
+
+      - name: Create a root index.html file
+        run: |
+          cd all-packages
+          echo '<!DOCTYPE html><html><head><title>PeDitXOS Repository</title><style>body{font-family: sans-serif; padding: 2em;}</style></head><body>' > index.html
+          echo '<h1>PeDitXOS Repository</h1>' >> index.html
+          echo '<h2>Available OpenWrt Versions:</h2><ul>' >> index.html
+          # Find all version directories (which are also artifact names) and create links
+          for dir in */; do
+            # Also copy the public key to the root for easy access
+            if [ -f "${dir}key-build.pub" ]; then
+                cp "${dir}key-build.pub" "key-build.pub"
+            fi
+            version_name=${dir%/}
+            echo "<li><a href=\"$version_name/\">$version_name</a></li>" >> index.html
+          done
+          echo '</ul>' >> index.html
+          echo '<h3>Public Signing Key: <a href="key-build.pub">key-build.pub</a></h3>' >> index.html
+          echo '</body></html>' >> index.html
+
+      - name: Verify final content structure
+        run: ls -R ./all-packages
+
+      - name: Deploy to repo branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: repo
+          publish_dir: ./all-packages
+          force_orphan: true
+          commit_message: "Deploy: Auto-built and signed OpenWrt packages"
+
