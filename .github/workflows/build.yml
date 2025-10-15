@@ -150,19 +150,19 @@ jobs:
       - name: Cache Toolchain
         uses: actions/cache@v4
         with:
-          path: openwrt/staging_dir/target-*
+          path: openwrt/staging_dir/host-*
           # Cache key based on OS, OpenWrt version, and toolchain version
           key: ${{ runner.os }}-${{ matrix.openwrt_version }}-toolchain-${{ hashFiles('openwrt/include/version.mk') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.openwrt_version }}-toolchain-
 
-      - name: Build Minimal Toolchain for usign
-        # CRITICAL FIX: Build a minimal toolchain/SDK to guarantee that usign is built and installed
-        # in staging_dir/host/bin before package index generation.
-        # This step is skipped if the toolchain cache is hit.
+      - name: Build host tools (usign)
+        # CRITICAL FIX: Explicitly build and install host tools (including usign) 
+        # to guarantee its presence in staging_dir/host/bin/.
+        # This step is essential for 'make package/index' to work with signed packages.
         run: |
           cd openwrt
-          make target/toolchain/compile V=s
+          make tools/install V=s
           
       - name: Build external packages
         # Build all packages from custom feeds that are not already built-in.
