@@ -18,13 +18,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # OpenWrt versions for building packages. This includes the latest stable branches
-        # and development branches as requested.
+        # **CORRECTED OPENWRT VERSIONS**
+        # These are the actual branch names used by the OpenWrt project on GitHub.
         openwrt_version:
-          - '24.10'    # Latest development/release candidate branch
-          - '23.05'    # Latest stable branch
-          - '22.03'    # Previous stable branch
-          - 'snapshot' # Latest development snapshot (unstable)
+          - 'master'           # Development branch (equivalent to latest Snapshot/Bleeding Edge)
+          - 'openwrt-23.05'    # Latest Stable Branch
+          - 'openwrt-22.03'    # Previous Stable Branch
+          - 'openwrt-21.02'    # Older Stable Branch
 
         # A comprehensive list of 17 major OpenWrt targets.
         openwrt_target:
@@ -51,6 +51,7 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Clone OpenWrt source code
+        # Now using the correctly named branch from the matrix
         run: git clone --depth 1 --branch ${{ matrix.openwrt_version }} https://github.com/openwrt/openwrt.git openwrt
 
       - name: Set up build environment and dependencies
@@ -116,7 +117,7 @@ jobs:
       - name: Organize packages for deployment
         run: |
           # The output path structure is: <version>/<target_folder>/<subtarget_folder>/
-          # Example: 23.05/x86/64/
+          # Example: openwrt-23.05/x86/64/
           OUTPUT_PATH="${{ matrix.openwrt_version }}/${{ matrix.openwrt_target }}/"
           
           # Create the final directory structure
@@ -166,15 +167,15 @@ jobs:
           echo '<h1>PeDitXOS Repository</h1>' >> index.html
           echo '<h2>Available OpenWrt Versions:</h2><ul>' >> index.html
           
-          # Find all version directories (e.g., 24.10, 23.05, snapshot) and create links
+          # Find all version directories (e.g., master, openwrt-23.05) and create links
           for dir in */; do
             # Also copy the public key to the root for easy access if it exists
             if [ -f "${dir}key-build.pub" ]; then
                 cp "${dir}key-build.pub" "key-build.pub"
             fi
             version_name=${dir%/}
-            # Check if directory is a version folder (by containing a '.' or being 'snapshot')
-            if [[ "$version_name" == *"."* || "$version_name" == "snapshot" ]]; then
+            # Check if directory is a version folder (by containing a '.' or being 'master')
+            if [[ "$version_name" == *"."* || "$version_name" == "master" ]]; then
               echo "<li><a href=\"$version_name/\">$version_name</a></li>" >> index.html
             fi
           done
