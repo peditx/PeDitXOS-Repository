@@ -56,10 +56,10 @@ jobs:
 
       - name: Set up build environment and dependencies
         run: |
-          # Install necessary tools for Python and general build process.
-          # Replaced python3-distutils (which fails to install on modern runners) with python3-setuptools.
+          # Install necessary tools for Python, Libtool (crucial for host tools), and general build process.
           sudo apt-get update
-          sudo apt-get install -y subversion libncurses5-dev gawk zlib1g-dev python3-dev python3-setuptools unzip wget
+          # CRITICAL ADDITION: libtool for robust host tool compilation
+          sudo apt-get install -y subversion libncurses5-dev gawk zlib1g-dev python3-dev python3-setuptools unzip wget libtool
           
           # Configure the target architecture
           cd openwrt
@@ -110,11 +110,14 @@ jobs:
           make download -j$(nproc)
 
       - name: Build host tools (usign)
-        # CRITICAL FIX: This step compiles and installs host tools like 'usign' into staging_dir/host/bin, 
-        # which is required for the subsequent package signing step.
+        # CRITICAL FIX: We explicitly run prepare, compile, and install for robustness. 
+        # This ensures usign is fully built and available for signing.
         run: |
           cd openwrt
-          make tools/install -j$(nproc)
+          echo "--- Explicitly preparing, compiling, and installing host tools (usign) ---"
+          make tools/prepare V=s
+          make tools/compile V=s
+          make tools/install V=s
           
       - name: Build external packages
         # Build all packages from custom feeds that are not already built-in.
