@@ -109,6 +109,13 @@ jobs:
           make defconfig
           make download -j$(nproc)
 
+      - name: Build host tools (usign)
+        # CRITICAL FIX: This step compiles and installs host tools like 'usign' into staging_dir/host/bin, 
+        # which is required for the subsequent package signing step.
+        run: |
+          cd openwrt
+          make tools/install -j$(nproc)
+          
       - name: Build external packages
         # Build all packages from custom feeds that are not already built-in.
         run: |
