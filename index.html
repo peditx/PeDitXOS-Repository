@@ -1,133 +1,107 @@
-<!DOCTYPE html><html><head><title>Index of $(pwd)</title>
-          <style>body { background-color: #0a0a14; color: #e0e0e0; font-family: monospace; padding: 2em; } a { color: #00f6ff; text-decoration: none; } a:hover { text-decoration: underline; }</style>
-          </head><body><h1>Index of $(pwd | sed "s|/home/runner/work/peditxos-repo/peditxos-repo/dist||")</h1><hr><pre><a href="../">../</a>
-          EOL
-            for item in *; do
-              if [ "$item" != "index.html" ]; then
-                if [ -d "$item" ]; then echo "<a href=\"$item/\">$item/</a>" >> index.html;
-                else echo "<a href=\"$item\">$item</a>" >> index.html; fi
-              fi
-            done
-            echo "</pre><hr></body></html>" >> index.html
-          ' {} \;
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeDitXOS - Package Repository</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- PWA and Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/fav/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/fav/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/fav/favicon-16x16.png">
+    <link rel="manifest" href="/fav/site.webmanifest">
+    <meta name="theme-color" content="#0a0a14">
 
-          # --- Create Main Landing Page ---
-          PUB_KEY_PATH=$(find ./dist -name 'key-build.pub' | head -n 1)
-          if [ -n "$PUB_KEY_PATH" ]; then
-            cp "$PUB_KEY_PATH" ./dist/key-build.pub
-          fi
+    <style>
+        :root { --bg-color: #0a0a14; --primary-cyan: #00f6ff; --primary-magenta: #ff00c1; --border-color: rgba(0, 246, 255, 0.3); --card-bg: rgba(15, 24, 51, 0.5); }
+        body { background-color: var(--bg-color); color: #e0e0e0; font-family: 'Rajdhani', sans-serif; }
+        body::after { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.3) 0px, rgba(0,0,0,0.3) 1px, transparent 1px, transparent 3px); pointer-events: none; z-index: 1000; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .text-neon-cyan { color: var(--primary-cyan); text-shadow: 0 0 5px var(--primary-cyan); }
+        .text-neon-magenta { color: var(--primary-magenta); }
+        .cyber-card { background: var(--card-bg); border: 1px solid var(--border-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .code-block { background-color: #00000080; border: 1px solid var(--border-color); font-family: monospace; }
+        pre code { white-space: pre-wrap; word-break: break-all; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <header class="text-center mb-16">
+            <a href="https://peditxos.ir" target="_blank" class="text-5xl font-bold font-orbitron text-neon-cyan tracking-widest">PeDitX<span class="text-neon-magenta">OS</span></a>
+            <p class="mt-4 text-xl text-gray-400">PeDitXOS Official Package Repository</p>
+        </header>
 
-          cd ./dist
-          BROWSE_HTML=""
-          for dir in $(find . -maxdepth 1 -type d -not -name '.*' -not -name '.' -not -name 'fav' | sort -rV); do
-            version_name=$(basename "$dir")
-            BROWSE_HTML="${BROWSE_HTML}<li><a href=\"./${version_name}/\" class=\"text-neon-cyan hover:underline\">${version_name}</a></li>"
-          done
-          cd ..
-
-          cat > ./dist/index.html <<EOF
-          <!DOCTYPE html>
-          <html lang="fa" dir="rtl">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>PeDitXOS - Package Repository</title>
-              <script src="https://cdn.tailwindcss.com"></script>
-              <link rel="preconnect" href="https://fonts.googleapis.com">
-              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-              <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
-              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-              
-              <link rel="apple-touch-icon" sizes="180x180" href="/fav/apple-touch-icon.png">
-              <link rel="icon" type="image/png" sizes="32x32" href="/fav/favicon-32x32.png">
-              <link rel="icon" type="image/png" sizes="16x16" href="/fav/favicon-16x16.png">
-              <link rel="manifest" href="/fav/site.webmanifest">
-              <meta name="theme-color" content="#0a0a14">
-
-              <style>
-                  :root { --bg-color: #0a0a14; --primary-cyan: #00f6ff; --primary-magenta: #ff00c1; --border-color: rgba(0, 246, 255, 0.3); --card-bg: rgba(15, 24, 51, 0.5); }
-                  body { background-color: var(--bg-color); color: #e0e0e0; font-family: 'Rajdhani', sans-serif; }
-                  body::after { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.3) 0px, rgba(0,0,0,0.3) 1px, transparent 1px, transparent 3px); pointer-events: none; z-index: 1000; }
-                  .font-orbitron { font-family: 'Orbitron', sans-serif; }
-                  .text-neon-cyan { color: var(--primary-cyan); text-shadow: 0 0 5px var(--primary-cyan); }
-                  .text-neon-magenta { color: var(--primary-magenta); }
-                  .cyber-card { background: var(--card-bg); border: 1px solid var(--border-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-                  .code-block { background-color: #00000080; border: 1px solid var(--border-color); font-family: monospace; }
-              </style>
-          </head>
-          <body class="antialiased">
-              <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                  <header class="text-center mb-16">
-                      <a href="https://peditxos.ir" target="_blank" class="text-5xl font-bold font-orbitron text-neon-cyan tracking-widest">PeDitX<span class="text-neon-magenta">OS</span></a>
-                      <p class="mt-4 text-xl text-gray-400">OpenWrt Package Repository</p>
-                  </header>
-
-                  <main class="space-y-12">
-                      <div class="cyber-card p-8 max-w-4xl mx-auto">
-                          <h2 class="text-3xl font-bold font-orbitron text-neon-cyan mb-6">آموزش نصب ریپازیتوری</h2>
-                          <div class="space-y-8 text-right text-lg">
-                              <div>
-                                  <h3 class="font-bold text-xl mb-2">۱. نصب کلید عمومی (فقط یک بار)</h3>
-                                  <p class="text-gray-400 mb-2">این دستور را در ترمینال روتر خود اجرا کنید تا به بسته‌های ما اعتماد کند:</p>
-                                  <div class="relative">
-                                      <button onclick="copyCode(this, 'code1')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
-                                      <pre id="code1" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>wget -O /tmp/key-build.pub https://downloads.peditxos.ir/key-build.pub
+        <main class="space-y-12">
+            <div class="cyber-card p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold font-orbitron text-neon-cyan mb-6">آموزش نصب ریپازیتوری</h2>
+                <div class="space-y-8 text-right text-lg">
+                    <div>
+                        <h3 class="font-bold text-xl mb-2">۱. نصب کلید عمومی (فقط یک بار)</h3>
+                        <p class="text-gray-400 mb-2">این دستور را در ترمینال روتر خود اجرا کنید تا به بسته‌های ما اعتماد کند:</p>
+                        <div class="relative">
+                            <button onclick="copyCode(this, 'code1')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                            <pre id="code1" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>wget -O /tmp/key-build.pub https://downloads.peditxos.ir/key-build.pub
 opkg-key add /tmp/key-build.pub</code></pre>
-                                  </div>
-                              </div>
-                              <div>
-                                  <h3 class="font-bold text-xl mb-2">۲. اضافه کردن آدرس ریپازیتوری</h3>
-                                  <p class="text-gray-400 mb-2">اسکریپت زیر را به صورت کامل کپی و در ترمینال روتر اجرا کنید. این اسکریپت به صورت خودکار نسخه و معماری دستگاه شما را تشخیص داده و ریپازیتوری مناسب را اضافه می‌کند.</p>
-                                   <div class="relative">
-                                      <button onclick="copyCode(this, 'code2')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
-                                      <pre id="code2" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>. /etc/openwrt_release
-if [ "\$DISTRIB_RELEASE" = "SNAPSHOT" ]; then
-  echo "src/gz peditxos_repo https://downloads.peditxos.ir/main/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xl mb-2">۲. اضافه کردن آدرس ریپازیتوری</h3>
+                        <p class="text-gray-400 mb-2">اسکریپت زیر را به صورت کامل کپی و در ترمینال روتر اجرا کنید. این اسکریپت به صورت خودکار نسخه و معماری دستگاه شما را تشخیص داده و ریپازیتوری مناسب را اضافه می‌کند.</p>
+                         <div class="relative">
+                            <button onclick="copyCode(this, 'code2')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                            <pre id="code2" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>. /etc/openwrt_release
+if [ "$DISTRIB_RELEASE" = "SNAPSHOT" ]; then
+  echo "src/gz peditxos_repo https://downloads.peditxos.ir/main/$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
 else
-  echo "src-git peditxos_repo https://downloads.peditxos.ir/openwrt-\${DISTRIB_RELEASE%.*}/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
+  echo "src/gz peditxos_repo https://downloads.peditxos.ir/openwrt-${DISTRIB_RELEASE%.*}/$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
 fi</code></pre>
-                                  </div>
-                              </div>
-                              <div>
-                                  <h3 class="font-bold text-xl mb-2">۳. به‌روزرسانی و نصب</h3>
-                                  <p class="text-gray-400 mb-2">لیست بسته‌ها را آپدیت کرده و پکیج مورد نظر خود را نصب کنید:</p>
-                                  <div class="relative">
-                                      <button onclick="copyCode(this, 'code3')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
-                                      <pre id="code3" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>opkg update
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xl mb-2">۳. به‌روزرسانی و نصب</h3>
+                        <p class="text-gray-400 mb-2">لیست بسته‌ها را آپدیت کرده و پکیج مورد نظر خود را نصب کنید:</p>
+                        <div class="relative">
+                            <button onclick="copyCode(this, 'code3')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                            <pre id="code3" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>opkg update
 opkg install luci-app-passwall</code></pre>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                      <div class="cyber-card p-8 max-w-4xl mx-auto">
-                          <h2 class="text-3xl font-bold font-orbitron text-neon-cyan mb-6">مرور دستی بسته‌ها</h2>
-                          <ul class="list-disc list-inside text-xl space-y-2 text-center">
-                              ${BROWSE_HTML}
-                          </ul>
-                      </div>
-                  </main>
-              </div>
-              <script>
-                  function copyCode(button, elementId) {
-                      const codeElement = document.getElementById(elementId);
-                      const textToCopy = codeElement.innerText;
-                      const textArea = document.createElement('textarea');
-                      textArea.value = textToCopy;
-                      document.body.appendChild(textArea);
-                      textArea.select();
-                      try {
-                          document.execCommand('copy');
-                          button.innerHTML = '<i class="fas fa-check text-green-400"></i>';
-                          setTimeout(() => {
-                              button.innerHTML = '<i class="fas fa-copy"></i>';
-                          }, 2000);
-                      } catch (err) {
-                          console.error('Failed to copy text: ', err);
-                          button.innerHTML = '<i class="fas fa-times text-red-400"></i>';
-                      }
-                      document.body.removeChild(textArea);
-                  }
-              </script>
-          </body>
-          </html>
+            <div id="browse-section" class="cyber-card p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold font-orbitron text-neon-cyan mb-6">مرور دستی بسته‌ها</h2>
+                <ul class="list-disc list-inside text-xl space-y-2 text-center">
+                    <!-- Links will be dynamically inserted here by the build workflow -->
+                </ul>
+            </div>
+        </main>
+    </div>
+    <script>
+        function copyCode(button, elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textToCopy = codeElement.innerText;
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                button.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                button.innerHTML = '<i class="fas fa-times text-red-400"></i>';
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>
