@@ -1,4 +1,4 @@
-          <!DOCTYPE html><html><head><title>Index of $(pwd)</title>
+<!DOCTYPE html><html><head><title>Index of $(pwd)</title>
           <style>body { background-color: #0a0a14; color: #e0e0e0; font-family: monospace; padding: 2em; } a { color: #00f6ff; text-decoration: none; } a:hover { text-decoration: underline; }</style>
           </head><body><h1>Index of $(pwd | sed "s|/home/runner/work/peditxos-repo/peditxos-repo/dist||")</h1><hr><pre><a href="../">../</a>
           EOL
@@ -38,7 +38,6 @@
               <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
               
-              <!-- PWA and Favicon -->
               <link rel="apple-touch-icon" sizes="180x180" href="/fav/apple-touch-icon.png">
               <link rel="icon" type="image/png" sizes="32x32" href="/fav/favicon-32x32.png">
               <link rel="icon" type="image/png" sizes="16x16" href="/fav/favicon-16x16.png">
@@ -71,8 +70,8 @@
                                   <h3 class="font-bold text-xl mb-2">۱. نصب کلید عمومی (فقط یک بار)</h3>
                                   <p class="text-gray-400 mb-2">این دستور را در ترمینال روتر خود اجرا کنید تا به بسته‌های ما اعتماد کند:</p>
                                   <div class="relative">
-                                      <button onclick="copyCode(this, 'code1')" class="absolute top-3 left-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
-                                      <pre id="code1" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left LTR"><code>wget -O /tmp/key-build.pub https://downloads.peditxos.ir/key-build.pub
+                                      <button onclick="copyCode(this, 'code1')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                                      <pre id="code1" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>wget -O /tmp/key-build.pub https://downloads.peditxos.ir/key-build.pub
 opkg-key add /tmp/key-build.pub</code></pre>
                                   </div>
                               </div>
@@ -80,12 +79,12 @@ opkg-key add /tmp/key-build.pub</code></pre>
                                   <h3 class="font-bold text-xl mb-2">۲. اضافه کردن آدرس ریپازیتوری</h3>
                                   <p class="text-gray-400 mb-2">اسکریپت زیر را به صورت کامل کپی و در ترمینال روتر اجرا کنید. این اسکریپت به صورت خودکار نسخه و معماری دستگاه شما را تشخیص داده و ریپازیتوری مناسب را اضافه می‌کند.</p>
                                    <div class="relative">
-                                      <button onclick="copyCode(this, 'code2')" class="absolute top-3 left-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
-                                      <pre id="code2" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left LTR"><code>. /etc/openwrt_release
+                                      <button onclick="copyCode(this, 'code2')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                                      <pre id="code2" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>. /etc/openwrt_release
 if [ "\$DISTRIB_RELEASE" = "SNAPSHOT" ]; then
   echo "src/gz peditxos_repo https://downloads.peditxos.ir/main/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
 else
-  echo "src/gz peditxos_repo https://downloads.peditxos.ir/openwrt-\${DISTRIB_RELEASE%.*}/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
+  echo "src-git peditxos_repo https://downloads.peditxos.ir/openwrt-\${DISTRIB_RELEASE%.*}/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
 fi</code></pre>
                                   </div>
                               </div>
@@ -93,8 +92,8 @@ fi</code></pre>
                                   <h3 class="font-bold text-xl mb-2">۳. به‌روزرسانی و نصب</h3>
                                   <p class="text-gray-400 mb-2">لیست بسته‌ها را آپدیت کرده و پکیج مورد نظر خود را نصب کنید:</p>
                                   <div class="relative">
-                                      <button onclick="copyCode(this, 'code3')" class="absolute top-3 left-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
-                                      <pre id="code3" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left LTR"><code>opkg update
+                                      <button onclick="copyCode(this, 'code3')" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                                      <pre id="code3" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left"><code>opkg update
 opkg install luci-app-passwall</code></pre>
                                   </div>
                               </div>
