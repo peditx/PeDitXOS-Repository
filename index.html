@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+          <html lang="fa" dir="rtl">
+          <head>
+              <meta charset="UTF-g">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>PeDitXOS - Package Repository</title>
+              <script src="https://cdn.tailwindcss.com"></script>
+              <link rel="preconnect" href="https://fonts.googleapis.com">
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+              <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+              <style>
+                  :root { --bg-color: #0a0a14; --primary-cyan: #00f6ff; --primary-magenta: #ff00c1; --border-color: rgba(0, 246, 255, 0.3); --card-bg: rgba(15, 24, 51, 0.5); }
+                  body { background-color: var(--bg-color); color: #e0e0e0; font-family: 'Rajdhani', sans-serif; }
+                  body::after { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.3) 0px, rgba(0,0,0,0.3) 1px, transparent 1px, transparent 3px); pointer-events: none; z-index: 1000; }
+                  .font-orbitron { font-family: 'Orbitron', sans-serif; }
+                  .text-neon-cyan { color: var(--primary-cyan); text-shadow: 0 0 5px var(--primary-cyan); }
+                  .text-neon-magenta { color: var(--primary-magenta); }
+                  .cyber-card { background: var(--card-bg); border: 1px solid var(--border-color); backdrop-filter: blur(8px); }
+                  .code-block { background-color: #00000080; border: 1px solid var(--border-color); font-family: monospace; }
+              </style>
+          </head>
+          <body class="antialiased">
+              <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                  <header class="text-center mb-16">
+                      <a href="https://peditxos.ir" class="text-5xl font-bold font-orbitron text-neon-cyan tracking-widest">PeDitX<span class="text-neon-magenta">OS</span></a>
+                      <p class="mt-4 text-xl text-gray-400">OpenWrt Package Repository</p>
+                  </header>
+
+                  <main>
+                      <div class="cyber-card p-8 max-w-4xl mx-auto mb-12">
+                          <h2 class="text-3xl font-bold font-orbitron text-neon-cyan mb-6">آموزش نصب ریپازیتوری</h2>
+                          <div class="space-y-6 text-right text-lg">
+                              <div>
+                                  <h3 class="font-bold text-xl mb-2">۱. اضافه کردن کلید عمومی</h3>
+                                  <p class="text-gray-400 mb-2">برای اطمینان از صحت بسته‌ها، ابتدا کلید عمومی ما را به سیستم خود اضافه کنید:</p>
+                                  <pre class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto"><code>wget -O /tmp/key-build.pub https://downloads.peditxos.ir/key-build.pub
+          opkg-key add /tmp/key-build.pub</code></pre>
+                              </div>
+                              <div>
+                                  <h3 class="font-bold text-xl mb-2">۲. اضافه کردن آدرس ریپازیتوری</h3>
+                                  <p class="text-gray-400 mb-2">خط زیر را به انتهای فایل <code class="text-neon-magenta">/etc/opkg/customfeeds.conf</code> اضافه کنید. توجه کنید که <code class="text-neon-magenta">VERSION</code> و <code class="text-neon-magenta">ARCHITECTURE</code> را با مشخصات دستگاه خود جایگزین کنید:</p>
+                                  <pre class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto"><code>src/gz peditxos_repo https://downloads.peditxos.ir/VERSION/ARCHITECTURE</code></pre>
+                                  <p class="text-gray-400 mt-2">برای مثال، برای OpenWrt 23.05 روی دستگاه x86/64:</p>
+                                  <pre class="code-block p-4 rounded-md text-gray-400 overflow-x-auto"><code>src/gz peditxos_repo https://downloads.peditxos.ir/openwrt-23.05/x86_64</code></pre>
+                              </div>
+                              <div>
+                                  <h3 class="font-bold text-xl mb-2">۳. به‌روزرسانی لیست بسته‌ها</h3>
+                                  <p class="text-gray-400 mb-2">در نهایت، لیست بسته‌های خود را آپدیت کنید:</p>
+                                  <pre class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto"><code>opkg update</code></pre>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div class="cyber-card p-8 max-w-4xl mx-auto">
+                          <h2 class="text-3xl font-bold font-orbitron text-neon-cyan mb-6">مرور دستی بسته‌ها</h2>
+                          <ul class="list-disc list-inside text-xl space-y-2">
