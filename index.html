@@ -1,6 +1,6 @@
           <!DOCTYPE html><html><head><title>Index of $(pwd)</title>
-          <style>body { background-color: #0a0a14; color: #e0e0e0; font-family: monospace; padding: 2em; } a { color: #00f6ff; }</style>
-          </head><body><h1>Index of $(pwd)</h1><hr><pre><a href="../">../</a>
+          <style>body { background-color: #0a0a14; color: #e0e0e0; font-family: monospace; padding: 2em; } a { color: #00f6ff; text-decoration: none; } a:hover { text-decoration: underline; }</style>
+          </head><body><h1>Index of $(pwd | sed "s|/home/runner/work/peditxos-repo/peditxos-repo/dist||")</h1><hr><pre><a href="../">../</a>
           EOL
             for item in *; do
               if [ "$item" != "index.html" ]; then
@@ -15,15 +15,11 @@
           PUB_KEY_PATH=$(find ./dist -name 'key-build.pub' | head -n 1)
           if [ -n "$PUB_KEY_PATH" ]; then
             cp "$PUB_KEY_PATH" ./dist/key-build.pub
-            PUBLIC_KEY_HTML="<div class=\"cyber-card p-8 max-w-4xl mx-auto\"><h3 class=\"font-bold text-xl mb-2 text-neon-cyan\">کلید عمومی امضا</h3><p class=\"text-gray-400 mb-2\">برای اطمینان از صحت بسته‌ها، این کلید عمومی را به سیستم خود اضافه کنید.</p><p><a href=\\\"key-build.pub\\\" class=\\\"text-neon-cyan hover:underline\\\">key-build.pub</a></p></div>"
-          else
-            PUBLIC_KEY_HTML=""
           fi
 
-          # Generate the list of browsable directories
           cd ./dist
           BROWSE_HTML=""
-          for dir in $(find . -maxdepth 1 -type d -not -name '.*' -not -name '.' | sort -rV); do
+          for dir in $(find . -maxdepth 1 -type d -not -name '.*' -not -name '.' -not -name 'fav' | sort -rV); do
             version_name=$(basename "$dir")
             BROWSE_HTML="${BROWSE_HTML}<li><a href=\"./${version_name}/\" class=\"text-neon-cyan hover:underline\">${version_name}</a></li>"
           done
@@ -40,6 +36,15 @@
               <link rel="preconnect" href="https://fonts.googleapis.com">
               <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
               <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+              
+              <!-- PWA and Favicon -->
+              <link rel="apple-touch-icon" sizes="180x180" href="/fav/apple-touch-icon.png">
+              <link rel="icon" type="image/png" sizes="32x32" href="/fav/favicon-32x32.png">
+              <link rel="icon" type="image/png" sizes="16x16" href="/fav/favicon-16x16.png">
+              <link rel="manifest" href="/fav/site.webmanifest">
+              <meta name="theme-color" content="#0a0a14">
+
               <style>
                   :root { --bg-color: #0a0a14; --primary-cyan: #00f6ff; --primary-magenta: #ff00c1; --border-color: rgba(0, 246, 255, 0.3); --card-bg: rgba(15, 24, 51, 0.5); }
                   body { background-color: var(--bg-color); color: #e0e0e0; font-family: 'Rajdhani', sans-serif; }
@@ -65,37 +70,65 @@
                               <div>
                                   <h3 class="font-bold text-xl mb-2">۱. نصب کلید عمومی (فقط یک بار)</h3>
                                   <p class="text-gray-400 mb-2">این دستور را در ترمینال روتر خود اجرا کنید تا به بسته‌های ما اعتماد کند:</p>
-                                  <pre class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto"><code>wget -O /tmp/key-build.pub https://downloads.peditxos.ir/key-build.pub
-          opkg-key add /tmp/key-build.pub</code></pre>
+                                  <div class="relative">
+                                      <button onclick="copyCode(this, 'code1')" class="absolute top-3 left-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                                      <pre id="code1" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left LTR"><code>wget -O /tmp/key-build.pub https://downloads.peditxos.ir/key-build.pub
+opkg-key add /tmp/key-build.pub</code></pre>
+                                  </div>
                               </div>
                               <div>
                                   <h3 class="font-bold text-xl mb-2">۲. اضافه کردن آدرس ریپازیتوری</h3>
                                   <p class="text-gray-400 mb-2">اسکریپت زیر را به صورت کامل کپی و در ترمینال روتر اجرا کنید. این اسکریپت به صورت خودکار نسخه و معماری دستگاه شما را تشخیص داده و ریپازیتوری مناسب را اضافه می‌کند.</p>
-                                  <pre class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto"><code>. /etc/openwrt_release
-          if [ "\$DISTRIB_RELEASE" = "SNAPSHOT" ]; then
-            echo "src/gz peditxos_repo https://downloads.peditxos.ir/main/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
-          else
-            echo "src/gz peditxos_repo https://downloads.peditxos.ir/openwrt-\${DISTRIB_RELEASE%.*}/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
-          fi</code></pre>
+                                   <div class="relative">
+                                      <button onclick="copyCode(this, 'code2')" class="absolute top-3 left-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                                      <pre id="code2" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left LTR"><code>. /etc/openwrt_release
+if [ "\$DISTRIB_RELEASE" = "SNAPSHOT" ]; then
+  echo "src/gz peditxos_repo https://downloads.peditxos.ir/main/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
+else
+  echo "src/gz peditxos_repo https://downloads.peditxos.ir/openwrt-\${DISTRIB_RELEASE%.*}/\$DISTRIB_ARCH" >> /etc/opkg/customfeeds.conf
+fi</code></pre>
+                                  </div>
                               </div>
                               <div>
                                   <h3 class="font-bold text-xl mb-2">۳. به‌روزرسانی و نصب</h3>
                                   <p class="text-gray-400 mb-2">لیست بسته‌ها را آپدیت کرده و پکیج مورد نظر خود را نصب کنید:</p>
-                                  <pre class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto"><code>opkg update
-          opkg install luci-app-passwall</code></pre>
+                                  <div class="relative">
+                                      <button onclick="copyCode(this, 'code3')" class="absolute top-3 left-3 text-gray-400 hover:text-white transition-colors" title="کپی کردن"><i class="fas fa-copy"></i></button>
+                                      <pre id="code3" class="code-block p-4 rounded-md text-neon-cyan overflow-x-auto text-left LTR"><code>opkg update
+opkg install luci-app-passwall</code></pre>
+                                  </div>
                               </div>
                           </div>
                       </div>
 
                       <div class="cyber-card p-8 max-w-4xl mx-auto">
                           <h2 class="text-3xl font-bold font-orbitron text-neon-cyan mb-6">مرور دستی بسته‌ها</h2>
-                          <ul class="list-disc list-inside text-xl space-y-2">
+                          <ul class="list-disc list-inside text-xl space-y-2 text-center">
                               ${BROWSE_HTML}
                           </ul>
                       </div>
-                      
-                      ${PUBLIC_KEY_HTML}
                   </main>
               </div>
+              <script>
+                  function copyCode(button, elementId) {
+                      const codeElement = document.getElementById(elementId);
+                      const textToCopy = codeElement.innerText;
+                      const textArea = document.createElement('textarea');
+                      textArea.value = textToCopy;
+                      document.body.appendChild(textArea);
+                      textArea.select();
+                      try {
+                          document.execCommand('copy');
+                          button.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                          setTimeout(() => {
+                              button.innerHTML = '<i class="fas fa-copy"></i>';
+                          }, 2000);
+                      } catch (err) {
+                          console.error('Failed to copy text: ', err);
+                          button.innerHTML = '<i class="fas fa-times text-red-400"></i>';
+                      }
+                      document.body.removeChild(textArea);
+                  }
+              </script>
           </body>
           </html>
