@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "data": {
+    "packages": {
+      "version": "90e2a24b106b796221042922275cc7394fc0ef26",
+      "revision": "90e2a24b106b796221042922275cc7394fc0ef26"
+    },
+    "passwall": {
+      "version": "97366994fa1e1c68f2ac4a0de12996420c0ae5dd",
+      "revision": "97366994fa1e1c68f2ac4a0de12996420c0ae5dd"
+    },
+    "passwall2": {
+      "version": "45fd6faf62e6af23f3f52cb555963f6443d7406e",
+      "revision": "45fd6faf62e6af23f3f52cb555963f6443d7406e"
+    },
+    "theme_carbonpx": {
+      "version": "137ce1b0fd63d3d780ddd2dfd133b37a0268a2c9",
+      "revision": "137ce1b0fd63d3d780ddd2dfd133b37a0268a2c9"
+    },
+    "theme_peditx": {
+      "version": "3bf84984046e540a388cbd402e17a8019f807793",
+      "revision": "3bf84984046e540a388cbd402e17a8019f807793"
+    },
+    "themeswitch": {
+      "version": "10866a17b9e235024b934d349d3daaa6921114a4",
+      "revision": "10866a17b9e235024b934d349d3daaa6921114a4"
+    }
+  }
+}

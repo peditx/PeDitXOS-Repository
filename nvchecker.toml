@@ -1,0 +1,34 @@
+# This file configures nvchecker to track the latest versions of all custom git repositories.
+[__config__]
+oldver = "cur_ver.json"
+newver = "new_ver.json"
+
+[passwall]
+source = "git"
+git = "https://github.com/peditx/openwrt-passwall"
+use_commit = true
+
+[passwall2]
+source = "git"
+git = "https://github.com/peditx/openwrt-passwall2"
+use_commit = true
+
+[packages]
+source = "git"
+git = "https://github.com/xiaorouji/openwrt-passwall-packages"
+use_commit = true
+
+[themeswitch]
+source = "git"
+git = "https://github.com/peditx/luci-app-themeswitch"
+use_commit = true
+
+[theme_peditx]
+source = "git"
+git = "https://github.com/peditx/luci-theme-peditx"
+use_commit = true
+
+[theme_carbonpx]
+source = "git"
+git = "https://github.com/peditx/luci-theme-carbonpx"
+use_commit = true
